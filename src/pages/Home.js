@@ -1,45 +1,65 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   StyleSheet,
   SafeAreaView,
   TextInput,
   Platform,
-  TouchableOpacity
+  FlatList,
 } from 'react-native';
+import { Button } from '../components/Button';
+import { SkillCard } from '../components/SkillCard';
 
 export function Home() {
   const [newSkill, setNewSkill] = useState('');
   const [mySkills, setMySkills] = useState([]);
+  const [greeting, setGreeting] = useState('');
+
+  function handleAddNewSkill() {
+    setMySkills(oldSkills => [...oldSkills, newSkill]);
+  }
+
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) {
+      setGreeting('Bom dia');
+    } else if (currentHour >= 12 && currentHour < 18) {
+      setGreeting('Boa tarde');
+    } else {
+      setGreeting('Boa noite');
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text
-        style={styles.title}
-      >
+      <Text style={styles.title}>
         Bem-vindo(a), Carol
       </Text>
+
+      <Text style={styles.greetings}>
+        {greeting}
+      </Text>
+
       <TextInput
         style={styles.input}
         placeholder="Nova habilidade"
         placeholderTextColor="#666"
         onChangeText={setNewSkill}
       />
-      <TouchableOpacity
-        style={styles.button}
-        activeOpacity={0.7}
-      >
-        <Text
-          style={styles.buttonText}
-        >
-          Add
-        </Text>
-      </TouchableOpacity>
-      <Text
-        style={[styles.title, { marginTop: 30 }]}
-      >
+      <Button
+        handleAddNewSkill={handleAddNewSkill}
+      />
+      <Text style={[styles.title, { marginVertical: 50 }]}>
         Minhas habilidades
       </Text>
+
+      <FlatList
+        data={mySkills}
+        keyExtractor={item => item}
+        renderItem={({ item }) => (
+          <SkillCard skill={item} />
+        )}
+      />
     </SafeAreaView>
   );
 }
@@ -75,5 +95,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 17,
     fontWeight: 'bold',
+  },
+  greetings: {
+    color: '#fff',
+    fontSize: 20
   }
 });

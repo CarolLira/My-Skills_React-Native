@@ -7,16 +7,34 @@ import {
   Platform,
   FlatList,
 } from 'react-native';
+
 import { Button } from '../components/Button';
 import { SkillCard } from '../components/SkillCard';
 
+interface SkillData {
+  id: string;
+  name: string;
+}
+
 export function Home() {
   const [newSkill, setNewSkill] = useState('');
-  const [mySkills, setMySkills] = useState([]);
+  const [mySkills, setMySkills] = useState<SkillData[]>([]);
   const [greeting, setGreeting] = useState('');
 
   function handleAddNewSkill() {
-    setMySkills(oldSkills => [...oldSkills, newSkill]);
+    if (!newSkill) return;
+
+    const data = {
+      id: String(Math.floor(Math.random() * 1000)),
+      name: newSkill
+    }
+    setMySkills(oldSkills => [...oldSkills, data]);
+  }
+
+  function handleRemoveSkill(id: string) {
+    setMySkills(oldSkills => {
+      return oldSkills.filter(skill => skill.id !== id)
+    });
   }
 
   useEffect(() => {
@@ -47,7 +65,8 @@ export function Home() {
         onChangeText={setNewSkill}
       />
       <Button
-        handleAddNewSkill={handleAddNewSkill}
+        onPress={handleAddNewSkill}
+        title="Adicionar"
       />
       <Text style={[styles.title, { marginVertical: 50 }]}>
         Minhas habilidades
@@ -55,9 +74,12 @@ export function Home() {
 
       <FlatList
         data={mySkills}
-        keyExtractor={item => item}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <SkillCard skill={item} />
+          <SkillCard
+            skill={item.name}
+            onPress={() => handleRemoveSkill(item.id)}
+          />
         )}
       />
     </SafeAreaView>
